@@ -56,6 +56,7 @@ class PPMimage():
     def flatten_red(self):
         #every 3rd element in row, make it 00
         pass
+        pass
 image_file = input("Enter the name of the image file: ")
 output_file = input("Enter the name of the output file: ")
 
