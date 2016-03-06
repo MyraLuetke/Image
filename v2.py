@@ -1,8 +1,11 @@
+import itertools
+
+
 class PPMimage():
 
     def __init__(self,infile,outfile):
 
-        infile = open(image_file)
+        infile = open(infile)
         thefile = infile.read()
         thefile = thefile.split()
 
@@ -14,53 +17,50 @@ class PPMimage():
         self.max_colour_num = int(thefile[3])
         self.values = thefile[4:]
 
-    def make_row(self,row_num):
-        num_elements_in_row = self.columns * 3
-        starting_row = row_num * num_elements_in_row
-        temp_slice = self.values[int(starting_row): int(starting_row + num_elements_in_row)]
-        return " ".join(temp_slice)
-
-    def write_all_to_out(self):
-        theoutfile = open(self.out_name, "w")
-        self.write_variables_to_out()
+    def write_to_out(self):
+        the_out_file = open(self.out_name, "w")
+        the_out_file.write("%s \n %s \n %d \n" % (self.magic_number, (str(self.columns) + " " + str(self.rows)), int(self.max_colour_num)))
         for num in range(self.rows):
-            theoutfile.write(self.make_row(num) + "\n")
-        theoutfile.close()
+            the_out_file.write(" ".join(self.get_row(num)) + "\n")
+        the_out_file.close()
 
-    def write_variables_to_out(self):
-        theoutfile = open(self.out_name, "w")
-        theoutfile.write("%s \n %s \n %d \n" % ((self.magic_number), (str(self.columns) + " " + str(self.rows)), int(self.max_colour_num)))
+    def get_row(self, row_num):
+        num_elements_in_row = self.columns * 3
+        start_of_row = row_num * num_elements_in_row
+        temp_slice = self.values[int(start_of_row): int(start_of_row + num_elements_in_row)]
+        return temp_slice
 
-    def write_row_to_out(self, row):
-        theoutfile = open(self.out_name, "w")
-        theoutfile.write(row + "\n")
+    def negate_red(self): #THIS WORKS
+        for num,value in enumerate(self.values):
+            if num % 3 == 0:
+                self.values[num] = str(self.max_colour_num - int(value))
 
-    def negate_red(self):
-        #for loop every 3rd element in row. Take value & subtract from 255. New value.
-        for num in range(self.rows, 3):
-            pass
+    def flatten_red(self): #THIS WORKS TOO
+        for num,value in enumerate(self.values):
+            if num % 3 == 0:
+                self.values[num] = str(0)
+
+    def split_into_RBG(self,a_list):
+        temp_matrix = []
+        for n in range(0, len(a_list), 3):
+            temp_matrix.append(a_list[n:(n+3)])
+        return temp_matrix
 
     def flip_horizontal(self):
-        #crashing and burning
+        pass
 
-        for num in range(self.rows):
-            temp_row = (self.make_row(num)).split()
-            #gotta split into groups of 3s
-            temp_row = " ".join(temp_row[::-1])
-            self.write_row_to_out(temp_row)
-        theoutfile.close()
+    def grey_scale(self): #This works but its kinda ugly...
+        temp_matrix = self.split_into_RBG(self.values)
+        for l in temp_matrix:
+            average = (int(l[0])+int(l[1])+int(l[2])) / 3
+            for x in range(3):
+                l[x] = str(int(average))
+        temp_matrix = list(itertools.chain(*temp_matrix))
+        self.values = temp_matrix
 
-    def grey_scale(self):
-        #for every 3 elements in row, add together divide by 3, each element becomes that value
-        pass
-    def flatten_red(self):
-        #every 3rd element in row, make it 00
-        pass
-        pass
 image_file = input("Enter the name of the image file: ")
 output_file = input("Enter the name of the output file: ")
 
 picture = PPMimage(image_file, output_file)
-picture.write_all_to_out()
-
-
+picture.grey_scale()
+picture.write_to_out()
