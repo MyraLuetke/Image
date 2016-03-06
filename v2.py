@@ -58,9 +58,18 @@ class PPMimage():
         temp_matrix = list(itertools.chain(*temp_matrix))
         self.values = temp_matrix
 
-image_file = input("Enter the name of the image file: ")
-output_file = input("Enter the name of the output file: ")
-
+print ("Welcome to the Portable Pixmap (PPM) Image Editor!")
+image_file = input("Please enter the name of the image file: ")
+output_file = input("Please enter the name of the output file: ")
 picture = PPMimage(image_file, output_file)
-picture.grey_scale()
+print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, and remove red colour from image. Please enter y or n for each question below.")
+if input("Would you like to convert to greyscale?: ") == "y":
+    picture.grey_scale()
+if input("Would you like to flip image horizontally?: ") == "y":
+    picture.flip_horizontal()
+if input("Would you like to negate red colour of image?: ") == "y":
+    picture.negate_red()
+if input ("Would you like to remove red colour from image?: ") == "y":
+    picture.flatten_red()
+
 picture.write_to_out()
