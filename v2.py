@@ -61,6 +61,6 @@ image_file = input("Enter the name of the image file: ")
 output_file = input("Enter the name of the output file: ")
 
 picture = PPMimage(image_file, output_file)
-picture.flip_horizontal()
+picture.write_all_to_out()
 
 
