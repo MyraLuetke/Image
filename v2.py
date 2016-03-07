@@ -2,7 +2,7 @@ import itertools
 
 
 class PPMimage():
-
+    # THIS IS AWESOME
     def __init__(self,infile,outfile):
 
         infile = open(infile)
