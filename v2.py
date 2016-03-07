@@ -2,7 +2,7 @@ import itertools
 
 
 class PPMimage():
-    # THIS IS AWESOME
+
     def __init__(self,infile,outfile):
 
         infile = open(infile)
@@ -40,17 +40,24 @@ class PPMimage():
             if num % 3 == 0:
                 self.values[num] = str(0)
 
-    def split_into_RBG(self,a_list):
+    def split_into_matrix(self,a_list, split_num):
         temp_matrix = []
-        for n in range(0, len(a_list), 3):
-            temp_matrix.append(a_list[n:(n+3)])
+        for n in range(0, len(a_list), split_num):
+            temp_matrix.append(a_list[n:(n+split_num)])
         return temp_matrix
 
     def flip_horizontal(self):
-        pass
+        temp_matrix = self.split_into_matrix(self.values, self.rows)
+        for row in temp_matrix:
+            more_matrix = self.split_into_matrix(row, 3)
+            more_matrix = more_matrix[::-1]
+        temp_matrix = list(itertools.chain(*temp_matrix))
+        print (temp_matrix)
+        self.values = temp_matrix
+        print (self.values)
 
     def grey_scale(self): #This works but its kinda ugly...
-        temp_matrix = self.split_into_RBG(self.values)
+        temp_matrix = self.split_into_RBG(self.values, 3)
         for l in temp_matrix:
             average = (int(l[0])+int(l[1])+int(l[2])) / 3
             for x in range(3):
@@ -62,6 +69,7 @@ print ("Welcome to the Portable Pixmap (PPM) Image Editor!")
 image_file = input("Please enter the name of the image file: ")
 output_file = input("Please enter the name of the output file: ")
 picture = PPMimage(image_file, output_file)
+picture.flip_horizontal()
 print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, and remove red colour from image. Please enter y or n for each question below.")
 if input("Would you like to convert to greyscale?: ") == "y":
     picture.grey_scale()
