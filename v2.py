@@ -1,4 +1,3 @@
-import itertools
 
 
 class PPMimage():
@@ -30,47 +29,57 @@ class PPMimage():
         temp_slice = self.values[int(start_of_row): int(start_of_row + num_elements_in_row)]
         return temp_slice
 
-    def negate_red(self): #THIS WORKS
-        for num,value in enumerate(self.values):
-            if num % 3 == 0:
-                self.values[num] = str(self.max_colour_num - int(value))
+    def get_start(self, row_num):
+        num_elements_in_row = self.columns * 3
+        start_of_row = row_num * num_elements_in_row
+        return int(start_of_row)
 
-    def flatten_red(self): #THIS WORKS TOO
-        for num,value in enumerate(self.values):
-            if num % 3 == 0:
+    def get_end(self,row_num):
+        num_elements_in_row = self.columns * 3
+        start_of_row = row_num * num_elements_in_row
+        return int(start_of_row + num_elements_in_row)
+
+    def negate_red(self):
+        for num in range(0, len(self.values), 3):
+                self.values[num] = str(self.max_colour_num - int(self.values[num]))
+
+    def flatten_red(self):
+        for num in range(0,len(self.values),3):
                 self.values[num] = str(0)
 
-    def split_into_matrix(self,a_list, split_num):
-        temp_matrix = []
-        for n in range(0, len(a_list), split_num):
-            temp_matrix.append(a_list[n:(n+split_num)])
-        return temp_matrix
-
     def flip_horizontal(self):
-        temp_matrix = self.split_into_matrix(self.values, self.rows)
-        for row in temp_matrix:
-            more_matrix = self.split_into_matrix(row, 3)
-            more_matrix = more_matrix[::-1]
-        temp_matrix = list(itertools.chain(*temp_matrix))
-        print (temp_matrix)
-        self.values = temp_matrix
-        print (self.values)
+        for num in range(self.rows):
+            row = self.get_row(num)
+            count = 0
+            for x in range(0, int(len(row)/2), 3):
+                a = row[x]
+                row[x] = row[len(row)-(3*(count+1))]
+                row[len(row)-(3*(count+1))] = a
+                b = row[x+1]
+                row[x+1] = row[len(row)-((3*(count+1))-1)]
+                row[len(row)-((3*(count+1))-1)] = b
+                c = row[x+2]
+                row[x+2] = row[len(row)-((3*(count+1))-2)]
+                row[len(row)-((3*(count+1))-2)] = c
+                count += 1
+            self.values[self.get_start(num):self.get_end(num)] = row
 
-    def grey_scale(self): #This works but its kinda ugly...
-        temp_matrix = self.split_into_RBG(self.values, 3)
-        for l in temp_matrix:
-            average = (int(l[0])+int(l[1])+int(l[2])) / 3
-            for x in range(3):
-                l[x] = str(int(average))
-        temp_matrix = list(itertools.chain(*temp_matrix))
-        self.values = temp_matrix
+    def grey_scale(self):
+        for x in range(0, (len(self.values)), 3):
+            y = x+1
+            z = x+2
+            average = int((int(self.values[x]) + int(self.values[y]) + int(self.values[z])) / 3)
+            self.values[x] = str(average)
+            self.values[y] = str(average)
+            self.values[z] = str(average)
 
 print ("Welcome to the Portable Pixmap (PPM) Image Editor!")
 image_file = input("Please enter the name of the image file: ")
 output_file = input("Please enter the name of the output file: ")
 picture = PPMimage(image_file, output_file)
-picture.flip_horizontal()
-print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, and remove red colour from image. Please enter y or n for each question below.")
+
+print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, and remove red colour from image.")
+print ("Please enter y or n for each question below.")
 if input("Would you like to convert to greyscale?: ") == "y":
     picture.grey_scale()
 if input("Would you like to flip image horizontally?: ") == "y":
