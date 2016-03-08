@@ -1,4 +1,4 @@
-
+from random import randint
 
 class PPMimage():
 
@@ -47,20 +47,18 @@ class PPMimage():
         for num in range(0,len(self.values),3):
                 self.values[num] = str(0)
 
+    def flip(self, count, n, row, x):
+        a = row[x+n]
+        row[x+n] = row[len(row)-((3*(count+1))-n)]
+        row[len(row)-((3*(count+1))-n)] = a
+
     def flip_horizontal(self):
         for num in range(self.rows):
             row = self.get_row(num)
             count = 0
             for x in range(0, int(len(row)/2), 3):
-                a = row[x]
-                row[x] = row[len(row)-(3*(count+1))]
-                row[len(row)-(3*(count+1))] = a
-                b = row[x+1]
-                row[x+1] = row[len(row)-((3*(count+1))-1)]
-                row[len(row)-((3*(count+1))-1)] = b
-                c = row[x+2]
-                row[x+2] = row[len(row)-((3*(count+1))-2)]
-                row[len(row)-((3*(count+1))-2)] = c
+                for n in range(3):
+                    self.flip(count,n,row,x)
                 count += 1
             self.values[self.get_start(num):self.get_end(num)] = row
 
@@ -73,10 +71,34 @@ class PPMimage():
             self.values[y] = str(average)
             self.values[z] = str(average)
 
+    def extreme_contrast(self):
+        for num in range(len(self.values)):
+            if int(self.values[num]) > (self.max_colour_num/2):
+                self.values[num] = str(self.max_colour_num)
+            else:
+                self.values[num] = str(0)
+
+    def random_noise(self):
+        for num in range(len(self.values)):
+            rand_number = randint(0, max(0,((int(self.values[num])-1))))
+            add_or_subtract = randint(0,1)
+            if add_or_subtract == 1:
+                if (int(self.values[num]) + rand_number) > self.max_colour_num:
+                    self.values[num] = str(self.max_colour_num)
+                else:
+                    self.values[num] = str(int(self.values[num]) + rand_number)
+            else:
+                if (int(self.values[num]) - rand_number) < 0:
+                    self.values[num] = str(0)
+                else:
+                    self.values[num] = str(int(self.values[num]) - rand_number)
+
 print ("Welcome to the Portable Pixmap (PPM) Image Editor!")
 image_file = input("Please enter the name of the image file: ")
 output_file = input("Please enter the name of the output file: ")
 picture = PPMimage(image_file, output_file)
+
+
 
 print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, and remove red colour from image.")
 print ("Please enter y or n for each question below.")
