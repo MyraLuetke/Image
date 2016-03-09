@@ -1,5 +1,6 @@
 from random import randint
 
+
 class PPMimage():
 
     def __init__(self,infile,outfile):
@@ -47,29 +48,29 @@ class PPMimage():
         for num in range(0,len(self.values),3):
                 self.values[num] = str(0)
 
-    def flip(self, count, n, row, x):
-        a = row[x+n]
-        row[x+n] = row[len(row)-((3*(count+1))-n)]
-        row[len(row)-((3*(count+1))-n)] = a
+    def flip(self, group_of_colour_values_from_right , colour_position_num, row, group_of_colour_values_from_left):
+        switched_value_to_be = row[group_of_colour_values_from_left + colour_position_num]
+        row[group_of_colour_values_from_left + colour_position_num] = row[len(row)-((3*group_of_colour_values_from_right)-colour_position_num)]
+        row[len(row)-((3*group_of_colour_values_from_right) - colour_position_num)] = switched_value_to_be
 
     def flip_horizontal(self):
-        for num in range(self.rows):
-            row = self.get_row(num)
-            count = 0
-            for x in range(0, int(len(row)/2), 3):
-                for n in range(3):
-                    self.flip(count,n,row,x)
-                count += 1
-            self.values[self.get_start(num):self.get_end(num)] = row
+        for row_num in range(self.rows):
+            row = self.get_row(row_num)
+            group_of_colour_values_from_right = 1
+            for group_of_colour_values_from_left in range(0, int(len(row)/2), 3):
+                for colour_position_num in range(3): #0 for red, 1 for green, 2 for blue
+                    self.flip(group_of_colour_values_from_right,colour_position_num,row,group_of_colour_values_from_left)
+                group_of_colour_values_from_right += 1
+            self.values[self.get_start(row_num):self.get_end(row_num)] = row
 
     def grey_scale(self):
-        for x in range(0, (len(self.values)), 3):
-            y = x+1
-            z = x+2
-            average = int((int(self.values[x]) + int(self.values[y]) + int(self.values[z])) / 3)
-            self.values[x] = str(average)
-            self.values[y] = str(average)
-            self.values[z] = str(average)
+        for index in range(0, (len(self.values)), 3):
+            consecutive_index = index+1
+            index_after_that = index+2
+            average = int((int(self.values[index]) + int(self.values[consecutive_index]) + int(self.values[index_after_that])) / 3)
+            self.values[index] = str(average)
+            self.values[consecutive_index] = str(average)
+            self.values[index_after_that] = str(average)
 
     def extreme_contrast(self):
         for num in range(len(self.values)):
@@ -83,24 +84,17 @@ class PPMimage():
             rand_number = randint(0, max(0,((int(self.values[num])-1))))
             add_or_subtract = randint(0,1)
             if add_or_subtract == 1:
-                if (int(self.values[num]) + rand_number) > self.max_colour_num:
-                    self.values[num] = str(self.max_colour_num)
-                else:
-                    self.values[num] = str(int(self.values[num]) + rand_number)
+                self.values[num] = str(min((int(self.values[num]) + rand_number), self.max_colour_num))
             else:
-                if (int(self.values[num]) - rand_number) < 0:
-                    self.values[num] = str(0)
-                else:
-                    self.values[num] = str(int(self.values[num]) - rand_number)
+                self.values[num] = str(max((int(self.values[num]) - rand_number), 0))
+
 
 print ("Welcome to the Portable Pixmap (PPM) Image Editor!")
 image_file = input("Please enter the name of the image file: ")
 output_file = input("Please enter the name of the output file: ")
 picture = PPMimage(image_file, output_file)
 
-
-
-print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, and remove red colour from image.")
+print ("Using the editor you can convert the image to greyscale, flip the image horizontally, negate red colour of image, remove red colour from image, create extreme contrast and create random noise.")
 print ("Please enter y or n for each question below.")
 if input("Would you like to convert to greyscale?: ") == "y":
     picture.grey_scale()
@@ -108,7 +102,11 @@ if input("Would you like to flip image horizontally?: ") == "y":
     picture.flip_horizontal()
 if input("Would you like to negate red colour of image?: ") == "y":
     picture.negate_red()
-if input ("Would you like to remove red colour from image?: ") == "y":
+if input("Would you like to remove red colour from image?: ") == "y":
     picture.flatten_red()
+if input("Would you like to create extreme contrast?: ") == "y":
+    picture.extreme_contrast()
+if input("Would you like to create random noise?: ") == "y":
+    picture.random_noise()
 
 picture.write_to_out()
